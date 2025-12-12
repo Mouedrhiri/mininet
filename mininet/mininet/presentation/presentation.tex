@@ -1,0 +1,51 @@
+﻿\documentclass{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+\usepackage{graphicx}
+\usetheme{Madrid}
+\title{MiniNet  Présentation C\&C}
+\author{Équipe Copilot}
+\date{Décembre 2025}
+\begin{document}
+\frame{\titlepage}
+\begin{frame}{Objectifs}
+\begin{itemize}
+\item Prototype pédagogique de mini réseau social
+\item Illustrer l'architecture Composants \& Connecteurs
+\item Traçabilité ACME/PlantUML \textrightarrow{} code
+\end{itemize}
+\end{frame}
+\begin{frame}{Exigences}
+\begin{enumerate}
+\item Inscription / authentification
+\item Posts (texte, image URL, lien)
+\item Fil des amis
+\item Messages privés
+\item Gestion des amis
+\end{enumerate}
+\end{frame}
+\begin{frame}{Composants}
+APIFrontend, UserManager, PostManager, MessageService, NotificationService, Storage
+\end{frame}
+\begin{frame}{Connecteurs}
+REST (Express), EventBus (in-memory)
+\end{frame}
+\begin{frame}{ACME}
+backend/src/acme/mininet.acme.json
+\end{frame}
+\begin{frame}{Diagramme PlantUML}
+\includegraphics[width=\textwidth]{images/demo1.png}
+\end{frame}
+\begin{frame}{Démo}
+\texttt{bash backend/scripts/demo.sh}
+\end{frame}
+\begin{frame}{Choix techniques}
+Express, EventBus, SQLite
+\end{frame}
+\begin{frame}{Évolutions possibles}
+Auth sécurisée, files externes, tests, monitoring
+\end{frame}
+\begin{frame}{Conclusion}
+Prototype exécutable et traçabilité claire.
+\end{frame}
+\end{document}
