@@ -1,0 +1,52 @@
+﻿{
+  "system": "MiniNet",
+  "style": "C&C",
+  "components": [
+    { "name": "APIFrontend", "ports": [{ "name": "http", "type": "REST", "paths": ["/api/*"] }] },
+    { "name": "UserManager", "ports": [{ "name": "register", "type": "RPC" }, { "name": "authenticate", "type": "RPC" }, { "name": "friends", "type": "RPC" }] },
+    { "name": "PostManager", "ports": [{ "name": "createPost", "type": "RPC" }, { "name": "getFeed", "type": "RPC" }] },
+    { "name": "MessageService", "ports": [{ "name": "sendMessage", "type": "RPC" }, { "name": "getInbox", "type": "RPC" }] },
+    { "name": "NotificationService", "ports": [{ "name": "notifyPost", "type": "EVENTPUB" }, { "name": "notifyMessage", "type": "EVENTPUB" }] },
+    { "name": "Storage", "ports": [{ "name": "CRUD", "type": "DB" }] }
+  ],
+  "connectors": [
+    { "name": "restConnector", "type": "REST",
+      "roles": [
+        { "name": "server", "binds": "APIFrontend.http" },
+        { "name": "user", "binds": "UserManager.register|authenticate|friends" },
+        { "name": "post", "binds": "PostManager.createPost|getFeed" },
+        { "name": "message", "binds": "MessageService.sendMessage|getInbox" }
+      ]
+    },
+    { "name": "eventBus", "type": "EVENTBUS",
+      "roles": [
+        { "name": "publisher", "binds": "NotificationService.notifyPost|notifyMessage" },
+        { "name": "subscribers", "binds": "PostManager|MessageService|UserManager" }
+      ]
+    }
+  ],
+  "attachments": [
+    { "component": "UserManager", "connector": "eventBus", "role": "subscribers" },
+    { "component": "PostManager", "connector": "eventBus", "role": "subscribers" },
+    { "component": "MessageService", "connector": "eventBus", "role": "subscribers" },
+    { "component": "NotificationService", "connector": "eventBus", "role": "publisher" },
+    { "component": "APIFrontend", "connector": "restConnector", "role": "server" }
+  ],
+  "traceability": {
+    "code": {
+      "UserManager": "backend/src/controllers/userManager.js",
+      "PostManager": "backend/src/controllers/postManager.js",
+      "MessageService": "backend/src/controllers/messageService.js",
+      "NotificationService": "backend/src/controllers/notificationService.js",
+      "Storage": "backend/src/storage/storage.js",
+      "REST": "backend/src/connectors/restConnector.js",
+      "EventBus": "backend/src/connectors/eventBus.js",
+      "App": "backend/src/app.js"
+    },
+    "docs": {
+      "UML": "docs/plantuml/archi.puml",
+      "ACME": "backend/src/acme/mininet.acme.json",
+      "Report": "report/rapport.tex"
+    }
+  }
+}
