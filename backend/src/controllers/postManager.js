@@ -1,11 +1,17 @@
 ﻿export function createPostManager(storage, eventBus, notificationService) {
   return {
-    createPost(author, text, kind = "text", url = null) {
+    createPost(author, text, kind = 'text', url = null) {
       const user = storage.getUserByUsername(author);
       if (!user) throw new Error("Auteur introuvable");
       const post = storage.createPost(user.id, text, kind, url);
       eventBus.publish("post.created", { id: post.id, author, kind, url });
-      notificationService.notifyFriendsNewPost(author, post);
+      
+      // Notifier les amis
+      const friends = storage.getFriends(user.id);
+      friends.forEach(friend => {
+        storage.createNotification(friend.id, 'new_post', `${author} a publié un nouveau post`);
+      });
+      
       return post;
     },
     getFeedForUser(username) {

@@ -59,5 +59,42 @@ class MiniNetAPI {
       body: formData
     }).then(r => r.json());
   }
+  async getNotifications(username) {
+    return fetch(`${API_BASE}/notifications/${username}`).then(r => r.json());
+  }
+
+  async markNotificationAsRead(notificationId) {
+    return fetch(`${API_BASE}/notifications/${notificationId}/read`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    }).then(r => r.json());
+  }
+
+  async markAllNotificationsAsRead(username) {
+    return fetch(`${API_BASE}/notifications/${username}/read-all`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    }).then(r => r.json());
+  }
+
+  async acceptFriend(requester, target) {
+    return fetch(`${API_BASE}/friends/accept`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ requester, target })
+    }).then(r => r.json());
+  }
+
+  async rejectFriend(requester, target) {
+    return fetch(`${API_BASE}/friends/reject`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ requester, target })
+    }).then(r => r.json());
+  }
+
+  async getPendingRequests(username) {
+    return fetch(`${API_BASE}/friends/requests/${username}`).then(r => r.json());
+  }
 }
 const api = new MiniNetAPI();

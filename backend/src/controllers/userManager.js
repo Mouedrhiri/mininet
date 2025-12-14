@@ -19,6 +19,7 @@
       if (!u1 || !u2) throw new Error("Utilisateur introuvable");
       storage.addFriend(u1.id, u2.id);
       storage.addFriend(u2.id, u1.id);
+      storage.createNotification(u2.id, 'friend_request', `${requester} vous a ajouté en ami`);
       eventBus.publish("friend.added", { requester, target });
     },
     removeFriend(requester, target) {

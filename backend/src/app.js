@@ -171,10 +171,12 @@ rest.register("POST", "/api/messages", (req, res) => {
 
 rest.register("GET", "/api/messages/:username", (req, res) => {
   const { username } = req.params;
+  console.log(`DEBUG: Récupération messages pour ${username}`);
   try {
     const inbox = messageService.getInbox(username);
     res.json({ ok: true, inbox });
   } catch (e) {
+    console.log(`DEBUG ERROR: ${e.message}`);
     res.status(400).json({ error: e.message });
   }
 });
@@ -184,8 +186,73 @@ rest.register("GET", "/api/messages/:username", (req, res) => {
 rest.register("GET", "/api/notifications/:username", (req, res) => {
   const { username } = req.params;
   try {
-    const notifications = notificationService.getNotifications(username);
+    const user = storageDB.getUserByUsername(username);
+    if (!user) return res.status(404).json({ error: "Utilisateur introuvable" });
+    const notifications = storageDB.getNotifications(user.id);
     res.json({ ok: true, notifications });
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
+rest.register("POST", "/api/notifications/:id/read", (req, res) => {
+  const { id } = req.params;
+  try {
+    storageDB.markNotificationAsRead(id);
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
+rest.register("POST", "/api/notifications/:username/read-all", (req, res) => {
+  const { username } = req.params;
+  try {
+    const user = storageDB.getUserByUsername(username);
+    if (!user) return res.status(404).json({ error: "Utilisateur introuvable" });
+    storageDB.markAllNotificationsAsRead(user.id);
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
+// ============ ENDPOINTS DEMANDES D'AMI ============
+
+rest.register("POST", "/api/friends/accept", (req, res) => {
+  const { requester, target } = req.body;
+  try {
+    const u1 = storageDB.getUserByUsername(requester);
+    const u2 = storageDB.getUserByUsername(target);
+    if (!u1 || !u2) throw new Error("Utilisateur introuvable");
+    storageDB.acceptFriend(u1.id, u2.id);
+    storageDB.createNotification(u2.id, 'friend_accepted', `${requester} a accepté votre demande d'ami`);
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
+rest.register("POST", "/api/friends/reject", (req, res) => {
+  const { requester, target } = req.body;
+  try {
+    const u1 = storageDB.getUserByUsername(requester);
+    const u2 = storageDB.getUserByUsername(target);
+    if (!u1 || !u2) throw new Error("Utilisateur introuvable");
+    storageDB.rejectFriend(u1.id, u2.id);
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
+rest.register("GET", "/api/friends/requests/:username", (req, res) => {
+  const { username } = req.params;
+  try {
+    const user = storageDB.getUserByUsername(username);
+    if (!user) return res.status(404).json({ error: "Utilisateur introuvable" });
+    const requests = storageDB.getPendingRequests(user.id);
+    res.json({ ok: true, requests });
   } catch (e) {
     res.status(400).json({ error: e.message });
   }
